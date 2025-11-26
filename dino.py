@@ -1,4 +1,5 @@
 import tkinter as tk
+import random
 
 class Dino:
     def __init__(self, canvas, x, y, scale=1.0):
@@ -54,6 +55,35 @@ class Dino:
         if abs(self.tail_offset) >= 8:
             self.tail_dir *= -1
 
+class Star:
+    def __init__(self, canvas, x, y):
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.speed = random.uniform(1, 3)
+        self.tag = f"star_{id(self)}"
+        # Create simple star shape
+        self.star = canvas.create_polygon(
+            x, y-8,
+            x+3, y-3,
+            x+8, y-2,
+            x+4, y+2,
+            x+5, y+8,
+            x, y+4,
+            x-5, y+8,
+            x-4, y+2,
+            x-8, y-2,
+            x-3, y-3,
+            fill="white", outline="lightblue", tags=self.tag
+        )
+
+    def step(self):
+        self.canvas.move(self.tag, 0, self.speed)
+        self.y += self.speed
+
+    def is_off_screen(self, height):
+        return self.y > height
+
 def main():
     root = tk.Tk()
     root.title("Friendly Dinosaur Animation")
@@ -65,9 +95,23 @@ def main():
     canvas.create_rectangle(0, HEIGHT-40, WIDTH, HEIGHT, fill="#cfe7b4", outline="")
 
     dino = Dino(canvas, x= -160, y=HEIGHT-120, scale=1.0)
+    stars = []
 
     def animate():
         dino.step()
+        
+        # Spawn new stars randomly
+        if random.random() < 0.15:
+            star = Star(canvas, random.randint(0, WIDTH), -10)
+            stars.append(star)
+        
+        # Update and remove off-screen stars
+        for star in stars[:]:
+            star.step()
+            if star.is_off_screen(HEIGHT):
+                canvas.delete(star.tag)
+                stars.remove(star)
+        
         # If dino moved off right edge, teleport back to left
         bbox = canvas.bbox(dino.tag)
         if bbox and bbox[0] > WIDTH + 40:
