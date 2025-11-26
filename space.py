@@ -6,7 +6,7 @@ def main():
     root = tk.Tk()
     root.title("Milky Way Galaxy Animation")
     WIDTH, HEIGHT = 1000, 700
-    canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#000814")
+    canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#06152B")
     canvas.pack()
     
     # Title
