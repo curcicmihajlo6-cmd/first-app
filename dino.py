@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import math
 
 class Dino:
     def __init__(self, canvas, x, y, scale=1.0):
@@ -28,6 +29,38 @@ class Dino:
         self.leg2 = canvas.create_rectangle(x+80*s, y+60*s, x+100*s, y+90*s, fill="#4f8f3a", outline="", tags=self.tag)
         # Smile
         self.smile = canvas.create_arc(x+125*s, y-10*s, x+155*s, y+10*s, start=200, extent=140, style="arc", width=2, tags=self.tag)
+        # Teeth placed along the smile arc
+        self.teeth = []
+        # Replace arc smile with a simple horizontal line and position teeth along it
+        # remove the previously created arc if it exists
+        try:
+            canvas.delete(self.smile)
+        except Exception:
+            pass
+        x1 = x + 125*s
+        y1 = y + 5*s
+        x2 = x + 155*s
+        y2 = y + 5*s
+        # draw a simple straight smile
+        self.smile = canvas.create_line(x1, y1, x2, y2, width=2, fill="black", capstyle="round", tags=self.tag)
+        # Center and radii used by the tooth-placement loop below: set ry=0 so teeth lie on a horizontal line
+        cx = (x1 + x2) / 2
+        cy = y1
+        rx = (x2 - x1) / 2
+        ry = 0 * s
+        # Angles along the arc where we place teeth (degrees)
+        angles = [230, 270, 310]
+        tooth_w = 6 * s
+        tooth_h = 6 * s
+        for ang in angles:
+            rad = math.radians(ang)
+            tx = cx + rx * math.cos(rad)
+            ty = cy + ry * math.sin(rad)
+            # create a small isosceles triangle: tip on the arc, base below (outside the mouth)
+            coords = (tx - tooth_w/2, ty + tooth_h, tx, ty, tx + tooth_w/2, ty + tooth_h)
+            t = canvas.create_polygon(*coords, fill="white", outline="", tags=self.tag)
+            self.teeth.append(t)
+        
         # Animation state
         self.leg_dir = 1
         self.tail_dir = 1
